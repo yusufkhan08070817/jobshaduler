@@ -8,9 +8,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.jobshaduler.R
+import com.example.jobshaduler.classes.dataclass.Post
 import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.classes.singleton.ty
 import com.example.jobshaduler.databinding.ActivityTaskupdateBinding
@@ -22,6 +24,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 
 class taskupdate : AppCompatActivity() {
     lateinit var b:ActivityTaskupdateBinding
@@ -32,26 +35,23 @@ class taskupdate : AppCompatActivity() {
         Nave.add(b.taskupdatenavigatation)
         b.todaytask.text=emailandpass.today
 
-        val databaseReference = FirebaseDatabase.getInstance().getReference("employesTask").child("${emailandpass.empid}").child("task")
+        val databaseReference = FirebaseDatabase.getInstance().getReference("employesTask/khanmyusuk340/task/")
 
-// Add a ValueEventListener to fetch data
-        val valueEventListener = object : ValueEventListener {
+        val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again whenever data at this location is updated
-                // Parse the dataSnapshot to retrieve the data you need
-                val value = dataSnapshot.getValue(String::class.java)
-                Log.d(TAG, "Value is: $value")
-                // Update your UI or perform any other actions based on the retrieved data
+                // Get Post object and use the values to update the UI
+                val post = dataSnapshot.value
+                // ...
+                Log.e("post","$post")
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", databaseError.toException())
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
+        databaseReference.addValueEventListener(postListener)
 
-// Add the ValueEventListener to the database reference
-        databaseReference.addValueEventListener(valueEventListener)
 
         state.state.observe(this) { t ->
             when (t) {

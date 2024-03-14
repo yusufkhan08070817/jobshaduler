@@ -188,6 +188,10 @@ class Add : AppCompatActivity() {
             b.cardlay.visibility=View.GONE
             Toast.makeText(this, "hide click", Toast.LENGTH_SHORT).show()
         }
+        var date=""
+        b.clenderview.setOnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
+            date="$dayOfMonth $monthOfYear $year"
+        }
         b.submit.setOnClickListener {
             if (b.title.text.isEmpty()) {
                 b.title.setBackgroundColor(R.color.card2)
@@ -203,7 +207,9 @@ class Add : AppCompatActivity() {
                 b.resorce.setBackgroundColor(R.color.card2)
                 return@setOnClickListener
             }
-            val adddata=adddataclass(b.title.text.toString(),b.clenderview.date.toString(),b.desctipatation.text.toString(),Data.chips,Data.data,b.resorce.text.toString())
+            
+            
+            val adddata=adddataclass(b.title.text.toString(),date,b.desctipatation.text.toString(),Data.chips,Data.data,b.resorce.text.toString())
 
            Data.chips.forEach {
                rtdb.reference.child("employesTask").child("$it").child("task").child("${emailandpass.today} ").setValue(adddata).addOnCompleteListener {

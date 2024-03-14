@@ -123,24 +123,34 @@
                         android:layout_height="wrap_content"
                         app:cardElevation="40dp"
                         android:id="@+id/cardlay"
+                        android:visibility="gone"
                         android:layout_alignParentTop="true"
                         android:layout_centerHorizontal="true"
                        >
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
-                            <ImageButton
-                                android:layout_width="50dp"
+                            <Space
+                                android:layout_width="20dp"
                                 android:layout_height="50dp"
+                                android:layout_alignParentRight="true"
+                                android:id="@+id/spacerimage"/>
+                            <ImageButton
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
                                 android:src="@drawable/cancel"
                                 android:scaleType="centerCrop"
                                 android:layout_alignParentTop="true"
-                                android:layout_alignParentLeft="true"
-                                android:backgroundTint="@color/white"
+                              android:layout_toLeftOf="@+id/spacerimage"
+                                android:layout_marginTop="20dp"
+                                android:backgroundTint="#00FFFFFF"
+android:elevation="50dp"
 
-                                android:id="@+id/closeclender"/>
+                                android:tint="@color/white"
+                                android:id="@+id/closeclender"
+                                tools:ignore="UseAppTint" />
 
-                            <CalendarView
+                            <DatePicker
                                 android:id="@+id/clenderview"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
