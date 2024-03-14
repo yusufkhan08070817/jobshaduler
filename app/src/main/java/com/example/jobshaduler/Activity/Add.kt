@@ -1,36 +1,94 @@
 package com.example.jobshaduler.Activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
+import com.example.jobshaduler.classes.dataclass.adddataclass
+import com.example.jobshaduler.classes.singleton.emailandpass
+import com.example.jobshaduler.classes.singleton.ty
 import com.example.jobshaduler.databinding.ActivityAddBinding
+import com.example.searchandchips.library.dataclass.Data
+import com.example.searchandchips.library.dataclass.serch
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
 import com.example.task.classes.naveobj
 import com.example.task.classes.state
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class Add : AppCompatActivity() {
     lateinit var b: ActivityAddBinding
+    lateinit var dbfs: FirebaseFirestore
+    lateinit var rtdb: FirebaseDatabase
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityAddBinding.inflate(layoutInflater)
         setContentView(b.root)
-        nonavigatation()
         val ani = AnimationKC(this)
         ani.AnimationStater(b.addheaderrelativelayout, ani.long_toleft)
         ani.AnimationStater(b.addtitle, ani.long_toleft)
         ani.AnimationStater(b.clander, ani.long_toright)
-        ani.AnimationStater(b.serchemploy, ani.long_toleft)
         ani.AnimationStater(b.employlist, ani.long_toright)
         ani.AnimationStater(b.descriptition, ani.long_toleft)
         ani.AnimationStater(b.resorcelink, ani.long_toright)
+        //  b.msgheaderdp.setImageURI(emailandpass.image)
+        dbfs = FirebaseFirestore.getInstance()
+        rtdb = Firebase.database
+        val docRef = dbfs.collection(emailandpass.compani!!).document("employlist")
+
+// Fetch the document
+        docRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Document exists, retrieve the ArrayList
+                    val arrayList = documentSnapshot.get("employ_list")
+                    if (arrayList != null) {
+                        // ArrayList retrieved successfully
+// Assuming the field holds an array of strings
+                        if (arrayList is List<*>) {
+                            val stringArray = arrayList as List<String>
+                            // Loop through the string array elements
+                            for (item in stringArray) {
+                                Log.e("elements", item)
+                            }
+                        } else {
+                            // Handle unexpected data type
+                        }
+                        Data.data = arrayList as ArrayList<String>
+
+                        println("ArrayList from Firestore: ${Data.data}")
+
+                    } else {
+                        // ArrayList is null or not of expected type
+                        println("Failed to retrieve ArrayList from Firestore")
+                    }
+                } else {
+                    // Document doesn't exist
+                    println("Document does not exist")
+                }
+            }
+            .addOnFailureListener { e ->
+                // Handle failures
+                println("Error fetching document: $e")
+            }
+        val serc = serch(this@Add)
+        serc.init()
+        Nave.add(b.addnave)
         state.state.observe(this) { t ->
             when (t) {
                 1 -> {
@@ -44,11 +102,6 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            MainActivity::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
                 }
 
                 2 -> {
@@ -80,6 +133,7 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
+
 
                 }
 
@@ -121,19 +175,59 @@ class Add : AppCompatActivity() {
                 }
             }
         }
+
+        Glide.with(this).load(emailandpass.image).into(b.msgheaderdp)
+        b.msgheaderdp.setOnClickListener {
+            startActivity(Intent(this, Profile::class.java))
+        }
+        b.clander.setOnClickListener {
+            Toast.makeText(this, "click", Toast.LENGTH_SHORT).show()
+            b.cardlay.visibility=View.VISIBLE
+        }
+        b.closeclender.setOnClickListener {
+            b.cardlay.visibility=View.GONE
+            Toast.makeText(this, "hide click", Toast.LENGTH_SHORT).show()
+        }
+        b.submit.setOnClickListener {
+            if (b.title.text.isEmpty()) {
+                b.title.setBackgroundColor(R.color.card2)
+                return@setOnClickListener
+            }
+            if (b.desctipatation.text.isEmpty())
+            {
+               b.desctipatation.setBackgroundColor(R.color.card2)
+                return@setOnClickListener
+            }
+            if (b.resorce.text.isEmpty())
+            {
+                b.resorce.setBackgroundColor(R.color.card2)
+                return@setOnClickListener
+            }
+            val adddata=adddataclass(b.title.text.toString(),b.clenderview.date.toString(),b.desctipatation.text.toString(),Data.chips,Data.data,b.resorce.text.toString())
+
+           Data.chips.forEach {
+               rtdb.reference.child("employesTask").child("$it").child("task").child("${emailandpass.today} ").setValue(adddata).addOnCompleteListener {
+                   if (it.isSuccessful)
+                   {
+                       Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
+                   }
+               }
+           }
+            Data.chips.forEach {
+                rtdb.reference.child("employesTask").child("$it").child("${emailandpass.today} uicomplete task").setValue(adddata).addOnCompleteListener {
+                    if (it.isSuccessful)
+                    {
+                        Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
     }
 
     override fun onBackPressed() {
         if (0 == 2)
             super.onBackPressed()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        Cnave(this)
-        Nave.getInstance(this.applicationContext)
-        Nave.add(b.addnave)
-
     }
 
     override fun onResume() {
@@ -154,4 +248,5 @@ class Add : AppCompatActivity() {
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
     }
+
 }

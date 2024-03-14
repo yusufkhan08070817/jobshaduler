@@ -6,19 +6,25 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.todays.tData
 import com.example.jobshaduler.adopterclass.todays.upcoming.Tadopter
 import com.example.jobshaduler.adopterclass.todays.upcoming.Uadopter
 import com.example.jobshaduler.adopterclass.upcoming.udata
+import com.example.jobshaduler.classes.singleton.emailandpass
+import com.example.jobshaduler.classes.singleton.ty
 import com.example.jobshaduler.databinding.ActivityMainBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
 import com.example.task.classes.naveobj
 import com.example.task.classes.state
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
     lateinit var b: ActivityMainBinding
@@ -28,7 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
-
+        b.headertitle.text = emailandpass.usename
+        b.headersubtitle.text = emailandpass.today
         val ani = AnimationKC(this)
         nonavigatation()
         nave()
@@ -40,6 +47,12 @@ class MainActivity : AppCompatActivity() {
         ani.AnimationStater(b.todaystaskrelativelayout, ani.long_toleft)
         ani.AnimationStater(b.upcomingtaskrelativelayout, ani.long_toleft)
         ani.AnimationStater(b.navigatation, ani.long_toup)
+
+        //  b.headerdp.setImageURI(emailandpass.image)
+        Glide.with(this).load(emailandpass.image).into(b.headerdp)
+        b.headerdp.setOnClickListener {
+            startActivity(Intent(this, Profile::class.java))
+        }
 
         tdata()
         udata()
@@ -92,11 +105,17 @@ class MainActivity : AppCompatActivity() {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            Add::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+
+                  ty{val jobtypr=emailandpass.jobtype
+                      if (jobtypr=="employ")
+                      {
+                          startActivity(Intent(this,taskupdate::class.java))
+                      }else
+                      {
+                          startActivity(Intent(this,Add::class.java))
+                      }
+                  }
+
                 }
 
                 4 -> {
@@ -137,7 +156,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
+        b.headerdp.setOnClickListener {
+            startActivity(Intent(this, Profile::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            })
+        }
     }
 
     fun nave() {
@@ -188,4 +211,5 @@ class MainActivity : AppCompatActivity() {
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
     }
+
 }

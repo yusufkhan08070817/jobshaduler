@@ -9,10 +9,12 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.task.TaskData
 import com.example.jobshaduler.adopterclass.task.taskadopter
+import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.databinding.ActivityTaskBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
@@ -32,6 +34,12 @@ class task : AppCompatActivity() {
         ani.AnimationStater(b.all, ani.long_toleft)
         ani.AnimationStater(b.ongoing, ani.long_toup)
         ani.AnimationStater(b.complete, ani.long_toright)
+
+      //  b.anaheaderdp.setImageURI(emailandpass.image)
+        Glide.with(this).load(emailandpass.image).into(b.anaheaderdp)
+        b.anaheaderdp.setOnClickListener {
+            startActivity(Intent(this,Profile::class.java))
+        }
 
         val taskdata = ArrayList<TaskData>()
         for (i in 0 until 10)
@@ -96,7 +104,7 @@ class task : AppCompatActivity() {
                     startActivity(
                         Intent(
                             this,
-                            Add::class.java
+                            if(emailandpass.jobtype=="admin")Add::class.java else taskupdate::class.java
                         ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
                 }
 

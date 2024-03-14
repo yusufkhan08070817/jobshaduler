@@ -9,12 +9,14 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.bargraph.classes.Creategraph
 import com.example.bargraph.classes.graphdata
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.Anaadopter.AnaAdopter
 import com.example.jobshaduler.adopterclass.todays.tData
+import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.databinding.ActivityAnaBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
@@ -51,7 +53,11 @@ class Ana : AppCompatActivity() {
         for (i in 0 until month.size)
             bardata.add(graphdata(5 * i, month[i]))
 
-
+       // b.anaheaderdp.setImageURI(emailandpass.image)
+        Glide.with(this).load(emailandpass.image).into(b.anaheaderdp)
+        b.anaheaderdp.setOnClickListener {
+            startActivity(Intent(this,Profile::class.java))
+        }
         Creategraph(
             this,
             bar,
@@ -112,11 +118,21 @@ class Ana : AppCompatActivity() {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            Add::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    if (emailandpass.jobtype=="employ")
+                    {
+                        startActivity(
+                            Intent(
+                                this,
+                                taskupdate::class.java
+                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    }else
+                    {
+                        startActivity(
+                            Intent(
+                                this,
+                                Add::class.java
+                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    }
                 }
 
                 4 -> {

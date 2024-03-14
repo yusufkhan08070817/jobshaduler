@@ -10,5 +10,7 @@
     <color name="transprent">#00E8F6FD</color>
     <color name="orang">#FC6F3D</color>
     <color name="orangeback">#FEE9E1</color>
-<color name="topbar">#C2A6FE</color>
+    <color name="topbar">#C2A6FE</color>
+    <color name="Red">#C2A6FE</color>
+
 </resources>

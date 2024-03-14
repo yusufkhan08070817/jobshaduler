@@ -8,10 +8,12 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.msgadopter.chattingAdopter.chattingadopter
 import com.example.jobshaduler.adopterclass.msgadopter.msgonlineadopter.msgadopter
+import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.databinding.ActivityMsgBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
@@ -31,6 +33,11 @@ class MSG : AppCompatActivity() {
         b.onlineStatus.adapter = msgadopter()
         b.recchatting.layoutManager = LinearLayoutManager(this)
         b.recchatting.adapter = chattingadopter()
+       // b.msgheaderdp.setImageURI(emailandpass.image)
+        Glide.with(this).load(emailandpass.image).into(b.msgheaderdp)
+        b.msgheaderdp.setOnClickListener {
+            startActivity(Intent(this,Profile::class.java))
+        }
         val ani = AnimationKC(this)
         ani.AnimationStater(b.msgheaderrelativelayout, ani.long_toleft)
         ani.AnimationStater(b.sercahcard, ani.long_toright)
@@ -85,11 +92,21 @@ class MSG : AppCompatActivity() {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            Add::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    if (emailandpass.jobtype=="employ")
+                    {
+                        startActivity(
+                            Intent(
+                                this,
+                                taskupdate::class.java
+                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    }else
+                    {
+                        startActivity(
+                            Intent(
+                                this,
+                                Add::class.java
+                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    }
                 }
 
                 4 -> {
