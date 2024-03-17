@@ -191,7 +191,7 @@ class Add : AppCompatActivity() {
         }
         var date = ""
         b.clenderview.setOnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
-            date = "$dayOfMonth ${monthOfYear+1} $year"
+            date = "$dayOfMonth ${monthOfYear + 1} $year"
         }
         b.submit.setOnClickListener {
             if (b.title.text.isEmpty()) {

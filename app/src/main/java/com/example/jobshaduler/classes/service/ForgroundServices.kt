@@ -12,6 +12,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -44,6 +46,7 @@ class ForgroundServices : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
 
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         FirebaseDatabase.getInstance().getReference("employ/${emailandpass.empid}/notificatiton")
             .addValueEventListener(object :
@@ -54,6 +57,19 @@ class ForgroundServices : Service() {
                         val bo = data.toString()
                         if (bo.toBoolean()) {
                             showNotificationWithVibration(applicationContext, "task", "you have a new task ")
+                            val vibrationEffect1: VibrationEffect
+
+                            // this is the only type of the vibration which requires system version Oreo (API 26)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                                // this effect creates the vibration of default amplitude for 1000ms(1 sec)
+                                vibrationEffect1 =
+                                    VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
+
+                                // it is safe to cancel other vibrations currently taking place
+                                vibrator.cancel()
+                                vibrator.vibrate(vibrationEffect1)
+                            }
                         }
                     } else
                         Log.e("not get ", "ni mela ")

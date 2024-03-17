@@ -5,8 +5,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.PorterDuff
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -71,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         if (!isRunning) {
             val serviceIntent = Intent(this, ForgroundServices::class.java)
             startService(serviceIntent)
+
         }
 
         fbget()
@@ -89,6 +93,20 @@ class MainActivity : AppCompatActivity() {
 
                             // Apply tint to the image
                             b.headernotibutton.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+                            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                            val vibrationEffect1: VibrationEffect
+
+                            // this is the only type of the vibration which requires system version Oreo (API 26)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                                // this effect creates the vibration of default amplitude for 1000ms(1 sec)
+                                vibrationEffect1 =
+                                    VibrationEffect.createOneShot(2000, VibrationEffect.EFFECT_DOUBLE_CLICK)
+
+                                // it is safe to cancel other vibrations currently taking place
+                                vibrator.cancel()
+                                vibrator.vibrate(vibrationEffect1)
+                            }
 
                         }
                     } else Log.e("not get ", "ni mela ")

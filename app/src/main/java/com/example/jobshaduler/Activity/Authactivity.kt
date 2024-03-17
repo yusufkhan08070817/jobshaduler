@@ -52,6 +52,7 @@ class Authactivity : AppCompatActivity() {
         ani.AnimationStater(b.cardiconback, ani.zero_to_origal)
 
         b.employ.setOnClickListener {
+
             emailandpass.jobtype = "employ"
             emailandpass.phone = b.phonenumberenter.text.toString()
             emailandpass.compani = b.complayname.text.toString()
