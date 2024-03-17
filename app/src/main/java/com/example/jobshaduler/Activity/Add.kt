@@ -34,6 +34,7 @@ class Add : AppCompatActivity() {
     lateinit var b: ActivityAddBinding
     lateinit var dbfs: FirebaseFirestore
     lateinit var rtdb: FirebaseDatabase
+
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -182,51 +183,56 @@ class Add : AppCompatActivity() {
         }
         b.clander.setOnClickListener {
             Toast.makeText(this, "click", Toast.LENGTH_SHORT).show()
-            b.cardlay.visibility=View.VISIBLE
+            b.cardlay.visibility = View.VISIBLE
         }
         b.closeclender.setOnClickListener {
-            b.cardlay.visibility=View.GONE
+            b.cardlay.visibility = View.GONE
             Toast.makeText(this, "hide click", Toast.LENGTH_SHORT).show()
         }
-        var date=""
+        var date = ""
         b.clenderview.setOnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
-            date="$dayOfMonth $monthOfYear $year"
+            date = "$dayOfMonth ${monthOfYear+1} $year"
         }
         b.submit.setOnClickListener {
             if (b.title.text.isEmpty()) {
                 b.title.setBackgroundColor(R.color.card2)
                 return@setOnClickListener
             }
-            if (b.desctipatation.text.isEmpty())
-            {
-               b.desctipatation.setBackgroundColor(R.color.card2)
+            if (b.desctipatation.text.isEmpty()) {
+                b.desctipatation.setBackgroundColor(R.color.card2)
                 return@setOnClickListener
             }
-            if (b.resorce.text.isEmpty())
-            {
+            if (b.resorce.text.isEmpty()) {
                 b.resorce.setBackgroundColor(R.color.card2)
                 return@setOnClickListener
             }
-            
-            
-            val adddata=adddataclass(b.title.text.toString(),date,b.desctipatation.text.toString(),Data.chips,Data.data,b.resorce.text.toString())
 
-           Data.chips.forEach {
-               rtdb.reference.child("employesTask").child("$it").child("task").child("${emailandpass.today} ").setValue(adddata).addOnCompleteListener {
-                   if (it.isSuccessful)
-                   {
-                       Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
-                   }
-               }
-           }
+
+            val adddata = adddataclass(
+                b.title.text.toString(),
+                date,
+                b.desctipatation.text.toString(),
+                Data.chips,
+                Data.data,
+                b.resorce.text.toString()
+            )
+
             Data.chips.forEach {
-                rtdb.reference.child("employesTask").child("$it").child("${emailandpass.today} uicomplete task").setValue(adddata).addOnCompleteListener {
-                    if (it.isSuccessful)
-                    {
-                        Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
+                rtdb.reference.child("employ/${it}/assignedtask/ ${date!!.replace(" ", "")}")
+                    .setValue(adddata).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                }
+                rtdb.reference.child("employ/${it}/notificatiton")
+                    .setValue(true).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Toast.makeText(this, "Notifi", Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
+
+
         }
 
     }

@@ -16,16 +16,23 @@ import com.example.bargraph.classes.graphdata
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.Anaadopter.AnaAdopter
 import com.example.jobshaduler.adopterclass.todays.tData
+import com.example.jobshaduler.adopterclass.todays.upcoming.Uadopter
+import com.example.jobshaduler.adopterclass.upcoming.udata
+import com.example.jobshaduler.classes.dataclass.YourDataClass
+import com.example.jobshaduler.classes.singleton.Upcomingtask
 import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.databinding.ActivityAnaBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
 import com.example.task.classes.naveobj
 import com.example.task.classes.state
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 
 class Ana : AppCompatActivity() {
     lateinit var b: ActivityAnaBinding
     lateinit var anadata: ArrayList<tData>
+    lateinit var nextdata:List<YourDataClass>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityAnaBinding.inflate(layoutInflater)
@@ -206,4 +213,5 @@ class Ana : AppCompatActivity() {
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
     }
+
 }

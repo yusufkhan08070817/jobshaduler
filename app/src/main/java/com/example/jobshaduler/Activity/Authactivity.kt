@@ -1,6 +1,8 @@
 package com.example.jobshaduler.Activity
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -8,6 +10,8 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.classes.singleton.emailandpass
@@ -39,7 +43,7 @@ class Authactivity : AppCompatActivity() {
         db = Firebase.firestore
         currentdate()
 
-
+        checkforpermision()
         ani = AnimationKC(this)
         nonavigatation()
         ani.AnimationStater(b.createemail, ani.toleft)
@@ -48,11 +52,11 @@ class Authactivity : AppCompatActivity() {
         ani.AnimationStater(b.cardiconback, ani.zero_to_origal)
 
         b.employ.setOnClickListener {
-            emailandpass.jobtype="employ"
-            emailandpass.phone=b.phonenumberenter.text.toString()
-            emailandpass.compani= b.complayname.text.toString()
-            emailandpass.usename=""
-            emailandpass.image=""
+            emailandpass.jobtype = "employ"
+            emailandpass.phone = b.phonenumberenter.text.toString()
+            emailandpass.compani = b.complayname.text.toString()
+            emailandpass.usename = ""
+            emailandpass.image = ""
             val userEmailPass = hashMapOf(
                 "email" to emailandpass.email,
                 "password" to emailandpass.pass,
@@ -60,27 +64,28 @@ class Authactivity : AppCompatActivity() {
                 "compani" to emailandpass.compani,
                 "job_type" to emailandpass.jobtype
             )
-            Log.e("msg","$userEmailPass")
-var emp=emailandpass.email!!.substringBefore("@")
+            Log.e("msg", "$userEmailPass")
+            var emp = emailandpass.email!!.substringBefore("@")
             if (emp.contains("."))
-              emp=emp.replace(".","m")
+                emp = emp.replace(".", "m")
 
             if (emp.contains("#"))
-                emp=emp.replace("#","m")
+                emp = emp.replace("#", "m")
 
             if (emp.contains("$"))
-                emp=emp.replace("$","m")
+                emp = emp.replace("$", "m")
 
             if (emp.contains("["))
-                emp=emp.replace("[","m")
+                emp = emp.replace("[", "m")
 
             if (emp.contains("]"))
-                emp=emp.replace("]","m")
-emailandpass.empid=emp
+                emp = emp.replace("]", "m")
+            emailandpass.empid = emp
 
             Toast.makeText(this, "${emailandpass.empid}", Toast.LENGTH_SHORT).show()
 
-            db.collection("${emailandpass.compani}").document("employlist").update("employ_list", FieldValue.arrayUnion(emailandpass.empid))
+            db.collection("${emailandpass.compani}").document("employlist")
+                .update("employ_list", FieldValue.arrayUnion(emailandpass.empid))
                 .addOnSuccessListener {
                     // Update successful
                     println("Data added to array successfully!")
@@ -103,29 +108,30 @@ emailandpass.empid=emp
                 }
         }
         b.admin.setOnClickListener {
-            emailandpass.jobtype="admin"
-            emailandpass.phone=b.phonenumberenter.text.toString()
-            emailandpass.compani= b.complayname.text.toString()
-            emailandpass.usename=""
-            emailandpass.image=""
+            emailandpass.jobtype = "admin"
+            emailandpass.phone = b.phonenumberenter.text.toString()
+            emailandpass.compani = b.complayname.text.toString()
+            emailandpass.usename = ""
+            emailandpass.image = ""
             val userEmailPass = hashMapOf(
                 "email" to emailandpass.email,
                 "password" to emailandpass.pass,
-                "phoneNo" to  emailandpass.phone,
-                "compani" to   emailandpass.compani,
+                "phoneNo" to emailandpass.phone,
+                "compani" to emailandpass.compani,
                 "job_type" to emailandpass.jobtype
             )
 
-            val employlist= hashMapOf(
+            val employlist = hashMapOf(
                 "employ_list" to null
             )
-            db.collection("${emailandpass.compani}").document("employlist") .set(employlist).addOnSuccessListener {
-                println("successfull")
-            }.addOnFailureListener {
+            db.collection("${emailandpass.compani}").document("employlist").set(employlist)
+                .addOnSuccessListener {
+                    println("successfull")
+                }.addOnFailureListener {
                 println("fail to upload ${it.cause} and msg${it.message}")
             }
 
-            Log.e("msg","$userEmailPass")
+            Log.e("msg", "$userEmailPass")
             db.collection(emailandpass.email!!).document("personalinfo").set(userEmailPass)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
@@ -196,6 +202,50 @@ emailandpass.empid=emp
             }
             auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
                 if (it.isSuccessful) {
+                    getdocref =
+                        Firebase.firestore.collection(email).document("personalinfo")
+                    getdocref.get().addOnSuccessListener {
+                        if (it.exists()) {
+
+                            emailandpass.compani = it.getString("compani")
+                            emailandpass.pass = it.getString("password")
+                            emailandpass.phone = it.getString("phoneNo")
+                            emailandpass.jobtype = it.getString("job_type")
+                            emailandpass.usename = it.getString("username")
+                            emailandpass.image = it.getString("dp")
+
+                            var emp = email.substringBefore("@")
+                            if (emp.contains("."))
+                                emp = emp.replace(".", "m")
+
+                            if (emp.contains("#"))
+                                emp = emp.replace("#", "m")
+
+                            if (emp.contains("$"))
+                                emp = emp.replace("$", "m")
+
+                            if (emp.contains("["))
+                                emp = emp.replace("[", "m")
+
+                            if (emp.contains("]"))
+                                emp = emp.replace("]", "m")
+                            emailandpass.empid = emp
+                            Toast.makeText(this, "${emailandpass.usename}", Toast.LENGTH_SHORT)
+                                .show()
+                            Log.e("msg", emailandpass.compani!!)
+                            Log.e("msg", emailandpass.pass!!)
+                            Log.e("msg", emailandpass.phone!!)
+                            Log.e("msg", emailandpass.jobtype!!)
+                            Log.e("msg", emailandpass.empid!!)
+
+                            startActivity(Intent(this, MainActivity::class.java).apply {
+                                setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+
+                            })
+
+                            finish()
+                        }
+                    }
                     startActivity(Intent(this, MainActivity::class.java).apply {
                         setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
 
@@ -260,17 +310,36 @@ emailandpass.empid=emp
                     Firebase.firestore.collection(emailandpass.email!!).document("personalinfo")
                 getdocref.get().addOnSuccessListener {
                     if (it.exists()) {
+
                         emailandpass.compani = it.getString("compani")
                         emailandpass.pass = it.getString("password")
                         emailandpass.phone = it.getString("phoneNo")
                         emailandpass.jobtype = it.getString("job_type")
-                        emailandpass.usename=it.getString("username")
-                        emailandpass.image=it.getString("dp")
-                        Toast.makeText(this, "${ emailandpass.usename}", Toast.LENGTH_SHORT).show()
+                        emailandpass.usename = it.getString("username")
+                        emailandpass.image = it.getString("dp")
+
+                        var emp = emailandpass.email!!.substringBefore("@")
+                        if (emp.contains("."))
+                            emp = emp.replace(".", "m")
+
+                        if (emp.contains("#"))
+                            emp = emp.replace("#", "m")
+
+                        if (emp.contains("$"))
+                            emp = emp.replace("$", "m")
+
+                        if (emp.contains("["))
+                            emp = emp.replace("[", "m")
+
+                        if (emp.contains("]"))
+                            emp = emp.replace("]", "m")
+                        emailandpass.empid = emp
+                        Toast.makeText(this, "${emailandpass.usename}", Toast.LENGTH_SHORT).show()
                         Log.e("msg", emailandpass.compani!!)
                         Log.e("msg", emailandpass.pass!!)
                         Log.e("msg", emailandpass.phone!!)
                         Log.e("msg", emailandpass.jobtype!!)
+                        Log.e("msg", emailandpass.empid!!)
 
                         startActivity(Intent(this, MainActivity::class.java).apply {
                             setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -322,11 +391,38 @@ emailandpass.empid=emp
         ani.AnimationStater(b.jobtype, ani.go_out_from_right)
     }
 
-    fun currentdate()
+    fun currentdate() {
+        val localdate = LocalDate.now()
+        val formater = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        val date = localdate.format(formater)
+        emailandpass.today = date
+    }
+    fun checkforpermision()
     {
-        val localdate= LocalDate.now()
-        val formater= DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        val date=localdate.format(formater)
-        emailandpass.today=date
+        if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED&&
+            ContextCompat.checkSelfPermission(this,android.Manifest.permission.FOREGROUND_SERVICE)!=PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this,arrayOf(android.Manifest.permission.POST_NOTIFICATIONS,android.Manifest.permission.FOREGROUND_SERVICE),100)
+
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode==100)
+        {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+
+            }
+            else
+            {
+                Toast.makeText(this, "we need permision :(", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

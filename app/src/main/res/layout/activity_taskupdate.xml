@@ -100,7 +100,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="task"
-
+android:id="@+id/taskupdatelist"
                         android:textAlignment="center"
                         android:textSize="20dp" />
 
@@ -173,6 +173,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:backgroundTint="@color/card2"
+                        android:id="@+id/taskupdaesubmit"
                         android:text="submit" />
 
 

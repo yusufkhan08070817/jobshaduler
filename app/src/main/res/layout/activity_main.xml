@@ -232,7 +232,7 @@ android:id="@+id/headersubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:text="Today's task"
+                    android:text="Upcomingtask"
                     android:textColor="@color/black"
                     android:textSize="20dp" />
 
