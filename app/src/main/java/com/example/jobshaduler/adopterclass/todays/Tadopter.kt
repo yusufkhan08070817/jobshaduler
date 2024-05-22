@@ -15,7 +15,7 @@ import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.todays.tData
 
-class Tadopter(val data: ArrayList<tData>,val context: Context) : RecyclerView.Adapter<Tadopter.viewholder>() {
+class Tadopter(val data: ArrayList<tData>,val context: Context,val Todaytaskclick:todaytaskclick ) : RecyclerView.Adapter<Tadopter.viewholder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewholder {
@@ -42,7 +42,7 @@ class Tadopter(val data: ArrayList<tData>,val context: Context) : RecyclerView.A
 
     }
 
-    class viewholder(v: View) : RecyclerView.ViewHolder(v) {
+    inner class viewholder(v: View) : RecyclerView.ViewHolder(v) {
         val Card: CardView = v.findViewById(R.id.tlay)
         val backimage: ImageView = v.findViewById(R.id.tlayimage)
         val icon: ImageView = v.findViewById(R.id.tlayimageicon)
@@ -50,6 +50,15 @@ class Tadopter(val data: ArrayList<tData>,val context: Context) : RecyclerView.A
         val percentage:TextView=v.findViewById(R.id.tlaypercentage)
         val title:TextView=v.findViewById(R.id.tlaytitle)
         val tlay:CardView=v.findViewById(R.id.tlay)
+        init {
+            Card.setOnClickListener {
+                Todaytaskclick.totayclick(layoutPosition)
+            }
+        }
 
+    }
+
+    interface todaytaskclick{
+        fun totayclick(position:Int)
     }
 }

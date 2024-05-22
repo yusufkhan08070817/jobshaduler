@@ -68,7 +68,8 @@ class taskupdate : AppCompatActivity(), textAdopter.taskclick, TaskupdateAdopter
                                 resourceLink = value["resorcelink"] as? String ?: "",
                                 teamChoose = value["teamchoose"] as? List<String> ?: emptyList(),
                                 subtask = value["subtask"] as? List<String> ?: emptyList(),
-                                title = value["title"] as? String ?: ""
+                                title = value["title"] as? String ?: "",
+                                totaltask = value["totle"] as? Int ?: 0
                             )
                         }
 
@@ -93,26 +94,27 @@ class taskupdate : AppCompatActivity(), textAdopter.taskclick, TaskupdateAdopter
 
 
         b.taskupdaesubmit.setOnClickListener {
-            if (percent > 5) {
+
                 Toast.makeText(this, "$percent", Toast.LENGTH_SHORT).show()
                 currenttask.currenttask.forEachIndexed { index, yourDataClass ->
                     Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}")
                         .setValue(yourDataClass).addOnCompleteListener {
                             if (it.isSuccessful) {
                                 Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
-                                // removeData("employ/${emailandpass.empid}/assignedtask/${yourDataClass.date.replace(" ","")}")
-
+                                removeData("employ/${emailandpass.empid}/assignedtask/ ${yourDataClass.date.replace(" ","")}")
+                                Toast.makeText(this, " date ${yourDataClass.date.replace(" ","")}", Toast.LENGTH_SHORT).show()
                             }
                         }
                     val c=  yourDataClass.date.replace(
                         " ",
-                        ""
+                        "",false
                     )
-                    removeData("/employ/khanyusufm433/assignedtask/ $c")
+                    removeData("/employ/${emailandpass.empid}/assignedtask/ ${c}")
                     Log.d("path","/employ/${emailandpass.empid}/assignedtask/${c}")
                 }
+
             }
-        }
+
         state.state.observe(this) { t ->
             when (t) {
                 1 -> {

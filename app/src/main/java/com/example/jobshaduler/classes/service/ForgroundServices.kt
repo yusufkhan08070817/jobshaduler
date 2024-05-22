@@ -15,20 +15,18 @@ import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.jobshaduler.R
 import com.example.jobshaduler.classes.singleton.emailandpass
-import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
-
-//ForgroundServices
+import com.zegocloud.uikit.prebuilt.call.config.ZegoNotificationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 
 class ForgroundServices : Service() {
 
@@ -40,44 +38,36 @@ class ForgroundServices : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        videoCallServices(emailandpass.empid!!)
+        createNotificationChannel()
     }
 
-    @SuppressLint("ForegroundServiceType")
+    @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        createNotificationChannel()
-
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         FirebaseDatabase.getInstance().getReference("employ/${emailandpass.empid}/notificatiton")
-            .addValueEventListener(object :
-                ValueEventListener {
+            .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val data = snapshot.value
                         val bo = data.toString()
                         if (bo.toBoolean()) {
-                            showNotificationWithVibration(applicationContext, "task", "you have a new task ")
+                            showNotificationWithVibration(applicationContext, "task", "you have a new task")
                             val vibrationEffect1: VibrationEffect
-
-                            // this is the only type of the vibration which requires system version Oreo (API 26)
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-                                // this effect creates the vibration of default amplitude for 1000ms(1 sec)
-                                vibrationEffect1 =
-                                    VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
-
-                                // it is safe to cancel other vibrations currently taking place
+                                vibrationEffect1 = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
                                 vibrator.cancel()
                                 vibrator.vibrate(vibrationEffect1)
                             }
                         }
-                    } else
+                    } else {
                         Log.e("not get ", "ni mela ")
-
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e(TAG, "Failed to read data: ${error.message}")
+                    Log.e("loaderror", "Failed to read data: ${error.message}")
                 }
             })
 
@@ -86,9 +76,9 @@ class ForgroundServices : Service() {
             .setContentText("jobshaduler service is running")
             .setSmallIcon(R.drawable.job)
             .build()
-        startForeground(1, notification)
 
-        // Your foreground service logic goes here
+
+        startForeground(1, notification)
 
         return START_STICKY
     }
@@ -101,36 +91,22 @@ class ForgroundServices : Service() {
         super.onDestroy()
     }
 
-    fun showNotificationWithVibration(context: Context, title: String, message: String) {
-
+    private fun showNotificationWithVibration(context: Context, title: String, message: String) {
         createNotificationChannel(context)
-
-        // Build the notification
         val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.job)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
 
-
-        // Set vibration pattern
-        notificationBuilder.setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
-
-        // Show the notification
         val notificationManager = NotificationManagerCompat.from(context)
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
         }
-
     }
 
     private fun createNotificationChannel(context: Context) {
-        // Create notification channel only for devices running Android Oreo and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "My Notification Channel"
             val descriptionText = "My Notification Channel Description"
@@ -138,23 +114,35 @@ class ForgroundServices : Service() {
             val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
-            // Register the channel with the system
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "Foreground Service Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
+            val serviceChannel = NotificationChannel(CHANNEL_ID, "Foreground Service Channel", NotificationManager.IMPORTANCE_DEFAULT)
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
+    }
+    private fun videoCallServices(userID: String) {
+        val appID: Long = 1232378385 // your App ID of Zoge Cloud Project
+        val appSign = "ca2395df49aa00f574fa36961dd9c09b73585e0014cd6a50700a5d8570283a9d" // your App Sign of Zoge Cloud Project
+        val application = application // Android's application context
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        //    callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
+        val notificationConfig = ZegoNotificationConfig()
+        notificationConfig.sound = "zego_uikit_sound_call"
+        notificationConfig.channelID = "CallInvitation"
+        notificationConfig.channelName = "CallInvitation"
+        ZegoUIKitPrebuiltCallInvitationService.init(
+            application,
+            appID,
+            appSign,
+            userID,
+            userID,
+            callInvitationConfig
+        )
     }
 }

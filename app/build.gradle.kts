@@ -45,15 +45,15 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.android.car.ui:car-ui-lib:2.6.0")
+    implementation ("com.intuit.sdp:sdp-android:1.1.1")
 
-    implementation("com.google.firebase:firebase-auth:22.3.1")
-    implementation("com.google.firebase:firebase-firestore:24.10.3")
-    implementation("com.google.firebase:firebase-database:20.3.1")
-    implementation("com.google.firebase:firebase-database-ktx:20.3.1")
 
 
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("com.github.furkankaplan:fk-blur-view-android:1.0.1")
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("com.google.firebase:firebase-database:20.3.1")
+    implementation("com.google.firebase:firebase-firestore:24.11.1")
 
 
     testImplementation("junit:junit:4.13.2")
@@ -65,4 +65,7 @@ dependencies {
     implementation ("com.github.yusufkhan08070817:Bargraph_android_kotlin:1.0.3")
     implementation ("com.github.yusufkhan08070817:AnimatationLIbkc:1.0.2")
     implementation ("com.github.yusufkhan08070817:SearchAndChips:1.0.1")
+
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+    implementation("com.github.ZEGOCLOUD:zego_uikit_signaling_plugin_android:+")
 }

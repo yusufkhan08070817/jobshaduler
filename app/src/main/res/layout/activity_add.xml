@@ -180,6 +180,7 @@ android:elevation="50dp"
                         android:layout_width="match_parent"
                         android:layout_height="400dp" />
 
+
                     <LinearLayout
                         android:id="@+id/descriptition"
                         android:layout_width="match_parent"
@@ -205,20 +206,37 @@ android:elevation="50dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <EditText
+                        <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:background="@color/white"
-                            android:hint="add sub task"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:textSize="16dp" />
+                            android:layout_height="wrap_content"
+                            >
+                            <EditText
+                                android:layout_width="match_parent"
+                                android:layout_height="40dp"
+                                android:background="@color/white"
+                                android:hint="add sub task"
+                                android:paddingLeft="10dp"
+                                android:id="@+id/tasklistedittask"
+                                android:paddingRight="10dp"
+                                android:textSize="16dp" />
+                            <ImageButton
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:src="@drawable/add"
+                                android:scaleType="centerCrop"
+                                android:backgroundTint="@color/white"
+                                android:layout_alignParentRight="true"
+                                android:layout_alignParentTop="true"
+                                android:id="@+id/tasklist"
+                                />
+                        </RelativeLayout>
                     </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:layout_margin="10dp"
+                        android:id="@+id/tashshower"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                     <LinearLayout

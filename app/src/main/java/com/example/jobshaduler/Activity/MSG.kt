@@ -1,38 +1,55 @@
 package com.example.jobshaduler.Activity
 
+import android.app.Application
 import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
+import com.example.jobshaduler.Chattinglayout
 import com.example.jobshaduler.R
+import com.example.jobshaduler.VideoCallActivity
 import com.example.jobshaduler.adopterclass.msgadopter.chattingAdopter.chattingadopter
 import com.example.jobshaduler.adopterclass.msgadopter.msgonlineadopter.msgadopter
 import com.example.jobshaduler.classes.singleton.emailandpass
+import com.example.jobshaduler.classes.singleton.refs
 import com.example.jobshaduler.databinding.ActivityMsgBinding
+import com.example.searchandchips.library.dataclass.Data
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
 import com.example.task.classes.naveobj
 import com.example.task.classes.state
+import com.google.firebase.firestore.FirebaseFirestore
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallFragment
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.config.ZegoNotificationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 
-class MSG : AppCompatActivity() {
+class MSG : AppCompatActivity(),chattingadopter.chattingclick {
     lateinit var b: ActivityMsgBinding
+    lateinit var emparray:ArrayList<String>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityMsgBinding.inflate(layoutInflater)
         setContentView(b.root)
         nonavigatation()
         Nave.add(b.msgnave)
+        emparray=ArrayList<String>()
+
         b.onlineStatus.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         b.onlineStatus.adapter = msgadopter()
         b.recchatting.layoutManager = LinearLayoutManager(this)
-        b.recchatting.adapter = chattingadopter()
+
        // b.msgheaderdp.setImageURI(emailandpass.image)
         Glide.with(this).load(emailandpass.image).into(b.msgheaderdp)
         b.msgheaderdp.setOnClickListener {
@@ -142,8 +159,47 @@ class MSG : AppCompatActivity() {
                 }
             }
         }
-    }
 
+        getemploylist()
+        b.recchatting.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        b.recchatting.adapter = chattingadopter(emparray,this)
+
+
+    }
+fun getemploylist()
+{
+    val docRef = FirebaseFirestore.getInstance().collection(emailandpass.compani!!).document("employlist")
+    docRef.get().addOnSuccessListener { documentSnapshot ->
+        if (documentSnapshot.exists()) {
+            val arrayList = documentSnapshot.get("employ_list")
+            if (arrayList != null) {
+                if (arrayList is List<*>) {
+                   emparray = arrayList as ArrayList<String>
+                    // Loop through the string array elements
+                    for (item in emparray) {
+                        Log.e("elements", item)
+                        Toast.makeText(this, "$item", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    // Handle unexpected data type
+                }
+
+                b.recchatting.adapter = chattingadopter(emparray,this)
+                println("ArrayList from Firestore:")
+
+            } else {
+                // ArrayList is null or not of expected type
+                println("Failed to retrieve ArrayList from Firestore")
+            }
+        } else {
+            // Document doesn't exist
+            println("Document does not exist")
+        }
+    }.addOnFailureListener { e ->
+        // Handle failures
+        println("Error fetching document: $e")
+    }
+}
     override fun onResume() {
         super.onResume()
         Cnave(this)
@@ -161,5 +217,44 @@ class MSG : AppCompatActivity() {
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
+    }
+
+    override fun chaattingclickposition(position: Int) {
+
+
+
+
+        val intent = Intent(this, Chattinglayout::class.java)
+refs.chattingref=emparray[position]
+        intent.putExtra("userID", emparray[position])
+        videoCallServices(emailandpass.empid!!)
+        startActivity(intent)
+
+
+    }
+
+    private fun videoCallServices(userID: String) {
+        val appID: Long = 1232378385 // your App ID of Zoge Cloud Project
+        val appSign = "ca2395df49aa00f574fa36961dd9c09b73585e0014cd6a50700a5d8570283a9d" // your App Sign of Zoge Cloud Project
+        val application = application // Android's application context
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        //    callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
+        val notificationConfig = ZegoNotificationConfig()
+        notificationConfig.sound = "zego_uikit_sound_call"
+        notificationConfig.channelID = "CallInvitation"
+        notificationConfig.channelName = "CallInvitation"
+        ZegoUIKitPrebuiltCallInvitationService.init(
+            application,
+            appID,
+            appSign,
+            userID,
+            userID,
+            callInvitationConfig
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ZegoUIKitPrebuiltCallInvitationService.unInit()
     }
 }

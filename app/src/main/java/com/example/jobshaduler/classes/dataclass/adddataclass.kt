@@ -2,5 +2,5 @@ package com.example.jobshaduler.classes.dataclass
 
 import android.net.Uri
 
-class adddataclass(val title:String, val date:String,val descripatation:String,val teamchoose:ArrayList<String>,val subtask:ArrayList<String>,val resorcelink:String) {
+class adddataclass(val title:String, val date:String,val descripatation:String,val teamchoose:ArrayList<String>,val subtask:ArrayList<String>,val resorcelink:String,val totle :Int) {
 }

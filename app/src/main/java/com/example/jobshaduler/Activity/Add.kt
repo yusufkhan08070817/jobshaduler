@@ -11,9 +11,12 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.bumptech.glide.Glide
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
+import com.example.jobshaduler.adopterclass.ADD.ADDsubtask
 import com.example.jobshaduler.classes.dataclass.adddataclass
 import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.classes.singleton.ty
@@ -50,43 +53,52 @@ class Add : AppCompatActivity() {
         //  b.msgheaderdp.setImageURI(emailandpass.image)
         dbfs = FirebaseFirestore.getInstance()
         rtdb = Firebase.database
+        var tasklist = ArrayList<String>()
+        val taskaddrelative = b.tashshower
+        taskaddrelative.layoutManager = GridLayoutManager(this, 2)
+        taskaddrelative.adapter = ADDsubtask(tasklist)
+        b.tasklist.setOnClickListener {
+            tasklist.add(b.tasklistedittask.text.toString())
+            b.tasklistedittask.text = null
+            taskaddrelative.adapter = ADDsubtask(tasklist)
+        }
         val docRef = dbfs.collection(emailandpass.compani!!).document("employlist")
 
 // Fetch the document
-        docRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    // Document exists, retrieve the ArrayList
-                    val arrayList = documentSnapshot.get("employ_list")
-                    if (arrayList != null) {
-                        // ArrayList retrieved successfully
+        docRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                // Document exists, retrieve the ArrayList
+                val arrayList = documentSnapshot.get("employ_list")
+                if (arrayList != null) {
+                    // ArrayList retrieved successfully
 // Assuming the field holds an array of strings
-                        if (arrayList is List<*>) {
-                            val stringArray = arrayList as List<String>
-                            // Loop through the string array elements
-                            for (item in stringArray) {
-                                Log.e("elements", item)
-                            }
-                        } else {
-                            // Handle unexpected data type
+                    if (arrayList is List<*>) {
+                        val stringArray = arrayList as List<String>
+                        // Loop through the string array elements
+                        for (item in stringArray) {
+                            Log.e("elements", item)
                         }
-                        Data.data = arrayList as ArrayList<String>
-
-                        println("ArrayList from Firestore: ${Data.data}")
-
                     } else {
-                        // ArrayList is null or not of expected type
-                        println("Failed to retrieve ArrayList from Firestore")
+                        // Handle unexpected data type
                     }
+                    Data.data = arrayList as ArrayList<String>
+
+                    println("ArrayList from Firestore: ${Data.data}")
+
                 } else {
-                    // Document doesn't exist
-                    println("Document does not exist")
+                    // ArrayList is null or not of expected type
+                    println("Failed to retrieve ArrayList from Firestore")
                 }
+            } else {
+                // Document doesn't exist
+                println("Document does not exist")
             }
-            .addOnFailureListener { e ->
-                // Handle failures
-                println("Error fetching document: $e")
-            }
+        }.addOnFailureListener { e ->
+            // Handle failures
+            println("Error fetching document: $e")
+        }
+
+
         val serc = serch(this@Add)
         serc.init()
         Nave.add(b.addnave)
@@ -95,39 +107,37 @@ class Add : AppCompatActivity() {
                 1 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.home)
                     drawable?.setColorFilter(
-                        ContextCompat.getColor(this, R.color.card2),
-                        PorterDuff.Mode.SRC_ATOP
+                        ContextCompat.getColor(this, R.color.card2), PorterDuff.Mode.SRC_ATOP
                     )
                     naveobj.naveobj.imageButton1.setImageDrawable(drawable)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
+                    startActivity(Intent(
+                        this, MainActivity::class.java
+                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
                 }
 
                 2 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.clipboard)
                     drawable?.setColorFilter(
-                        ContextCompat.getColor(this, R.color.card2),
-                        PorterDuff.Mode.SRC_ATOP
+                        ContextCompat.getColor(this, R.color.card2), PorterDuff.Mode.SRC_ATOP
                     )
                     naveobj.naveobj.imageButton2.setImageDrawable(drawable)
                     naveobj.naveobj.imageButton1.setImageResource(R.drawable.home)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            task::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    startActivity(Intent(
+                        this, task::class.java
+                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
                 }
 
                 3 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.add)
                     drawable?.setColorFilter(
-                        ContextCompat.getColor(this, R.color.card2),
-                        PorterDuff.Mode.SRC_ATOP
+                        ContextCompat.getColor(this, R.color.card2), PorterDuff.Mode.SRC_ATOP
                     )
                     naveobj.naveobj.imageButton3.setImageDrawable(drawable)
                     naveobj.naveobj.imageButton1.setImageResource(R.drawable.home)
@@ -141,38 +151,32 @@ class Add : AppCompatActivity() {
                 4 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.chat)
                     drawable?.setColorFilter(
-                        ContextCompat.getColor(this, R.color.card2),
-                        PorterDuff.Mode.SRC_ATOP
+                        ContextCompat.getColor(this, R.color.card2), PorterDuff.Mode.SRC_ATOP
                     )
                     naveobj.naveobj.imageButton4.setImageDrawable(drawable)
                     naveobj.naveobj.imageButton1.setImageResource(R.drawable.home)
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
-                    startActivity(
-                        Intent(
-                            this,
-                            MSG::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    startActivity(Intent(
+                        this, MSG::class.java
+                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
 
                 }
 
                 5 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.chart)
                     drawable?.setColorFilter(
-                        ContextCompat.getColor(this, R.color.card2),
-                        PorterDuff.Mode.SRC_ATOP
+                        ContextCompat.getColor(this, R.color.card2), PorterDuff.Mode.SRC_ATOP
                     )
                     naveobj.naveobj.imageButton5.setImageDrawable(drawable)
                     naveobj.naveobj.imageButton1.setImageResource(R.drawable.home)
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    startActivity(
-                        Intent(
-                            this,
-                            Ana::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    startActivity(Intent(
+                        this, Ana::class.java
+                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
                 }
             }
         }
@@ -212,11 +216,13 @@ class Add : AppCompatActivity() {
                 b.title.text.toString(),
                 date,
                 b.desctipatation.text.toString(),
-                Data.chips,
-                Data.data,
-                b.resorce.text.toString()
-            )
+                Data.chips,// employ
+                tasklist,
+                b.resorce.text.toString(),
+                tasklist.size
 
+            )
+// send to each employ
             Data.chips.forEach {
                 rtdb.reference.child("employ/${it}/assignedtask/ ${date!!.replace(" ", "")}")
                     .setValue(adddata).addOnCompleteListener {
@@ -224,8 +230,8 @@ class Add : AppCompatActivity() {
                             Toast.makeText(this, "task assigned", Toast.LENGTH_SHORT).show()
                         }
                     }
-                rtdb.reference.child("employ/${it}/notificatiton")
-                    .setValue(true).addOnCompleteListener {
+                rtdb.reference.child("employ/${it}/notificatiton").setValue(true)
+                    .addOnCompleteListener {
                         if (it.isSuccessful) {
                             Toast.makeText(this, "Notifi", Toast.LENGTH_SHORT).show()
                         }
@@ -238,8 +244,7 @@ class Add : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (0 == 2)
-            super.onBackPressed()
+        if (0 == 2) super.onBackPressed()
     }
 
     override fun onResume() {
@@ -251,13 +256,11 @@ class Add : AppCompatActivity() {
 
     fun nonavigatation() {
         getWindow().setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
+            WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN
         );
         val decorView = window.decorView
-        val uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        val uiOptions =
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
     }
 

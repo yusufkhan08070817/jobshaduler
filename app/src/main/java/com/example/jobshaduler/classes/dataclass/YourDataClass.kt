@@ -6,5 +6,6 @@ data class YourDataClass(
     val resourceLink: String = "",
     val teamChoose: List<String> = emptyList(),
     val subtask: List<String> = emptyList(),
-    val title: String = ""
+    val title: String = "",
+    val totaltask:Int=0
 )

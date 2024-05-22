@@ -26,9 +26,11 @@ import com.example.jobshaduler.adopterclass.upcoming.udata
 import com.example.jobshaduler.classes.dataclass.YourDataClass
 import com.example.jobshaduler.classes.dataclass.currenttaskwithstatus
 import com.example.jobshaduler.classes.service.ForgroundServices
+import com.example.jobshaduler.classes.singleton.TodayTaskList
 import com.example.jobshaduler.classes.singleton.emailandpass
 import com.example.jobshaduler.classes.singleton.ty
 import com.example.jobshaduler.classes.singleton.Upcomingtask
+import com.example.jobshaduler.classes.singleton.refs
 import com.example.jobshaduler.databinding.ActivityMainBinding
 import com.example.task.classes.Cnave
 import com.example.task.classes.Nave
@@ -40,10 +42,13 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import com.zegocloud.uikit.prebuilt.call.config.ZegoNotificationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
     lateinit var b: ActivityMainBinding
-    lateinit var tdata: ArrayList<tData>
+
     lateinit var udata: ArrayList<udata>
     lateinit var currenttask: List<currenttaskwithstatus>
     lateinit var nextdata: List<YourDataClass>
@@ -73,13 +78,25 @@ class MainActivity : AppCompatActivity() {
         val isRunning = isServiceRunning(this, ForgroundServices::class.java)
         if (!isRunning) {
             val serviceIntent = Intent(this, ForgroundServices::class.java)
-            startService(serviceIntent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
 
+        }else
+        {
+            val serviceIntent = Intent(this, ForgroundServices::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
         }
 
         fbget()
         nexttask()
-        tdata.forEach {
+        TodayTaskList.tdata.forEach {
             Toast.makeText(this, "${it.title} ${it.prograss}", Toast.LENGTH_SHORT).show()
         }
         FirebaseDatabase.getInstance().getReference("employ/${emailandpass.empid}/notificatiton")
@@ -218,6 +235,7 @@ class MainActivity : AppCompatActivity() {
                 addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             })
         }
+        videoCallServices(emailandpass.empid!!)
     }
 
     fun nave() {
@@ -254,7 +272,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun fbget() {
-        tdata = ArrayList<tData>()
+        TodayTaskList.tdata = ArrayList<tData>()
         Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask").get()
             .addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -277,8 +295,10 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         // Use dataList as needed
-
+                        TodayTaskList.currenttask.clear()
                         for (data in currenttask) {
+                            TodayTaskList.currenttask.add(data)
+
                             // Access individual properties of the YourDataClass instance
                             println("cDate: ${data.date}")
                             println("cDescription: ${data.description}")
@@ -299,12 +319,12 @@ class MainActivity : AppCompatActivity() {
                                 b.cardrelatvetext.text =
                                     "Your ${data.title} task has not been started yet."
                             }
-                            tdata.add(tData(R.drawable.dp, data.title, data.percentage.toInt()))
+                            TodayTaskList.tdata.add(tData(R.drawable.dp, data.title, data.percentage.toInt()))
                         }
 
                         b.todayrecycle.layoutManager =
                             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                        b.todayrecycle.adapter = Tadopter(tdata, this)
+                        b.todayrecycle.adapter = Tadopter( TodayTaskList.tdata, this,this)
 
                     }
 
@@ -329,7 +349,8 @@ class MainActivity : AppCompatActivity() {
                                 resourceLink = value["resorcelink"] as? String ?: "",
                                 teamChoose = value["teamchoose"] as? List<String> ?: emptyList(),
                                 subtask = value["subtask"] as? List<String> ?: emptyList(),
-                                title = value["title"] as? String ?: ""
+                                title = value["title"] as? String ?: "",
+                                totaltask = value["totle"] as?Int?: 0
                             )
                         }
 
@@ -344,7 +365,7 @@ class MainActivity : AppCompatActivity() {
                             println("Team Choose: ${data.teamChoose}")
                             println("Subtask: ${data.subtask}")
                             println("Title: ${data.title}")
-
+                            Upcomingtask.upcomingTask.clear()
                             Upcomingtask.upcomingTask.add(udata(data.title, data.date))
                         }
                         b.upcomingrecycler.layoutManager = LinearLayoutManager(this)
@@ -362,6 +383,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return false
+    }
+    private fun videoCallServices(userID: String) {
+        val appID: Long = 1232378385 // your App ID of Zoge Cloud Project
+        val appSign = "ca2395df49aa00f574fa36961dd9c09b73585e0014cd6a50700a5d8570283a9d" // your App Sign of Zoge Cloud Project
+        val application = application // Android's application context
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        //    callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
+        val notificationConfig = ZegoNotificationConfig()
+        notificationConfig.sound = "zego_uikit_sound_call"
+        notificationConfig.channelID = "CallInvitation"
+        notificationConfig.channelName = "CallInvitation"
+        ZegoUIKitPrebuiltCallInvitationService.init(
+            application,
+            appID,
+            appSign,
+            userID,
+            userID,
+            callInvitationConfig
+        )
+    }
+    override fun totayclick(position: Int) {
+        refs.todayclickposition=position
+        startActivity(Intent(this,Taskclick::class.java).apply {
+            Intent.FLAG_ACTIVITY_NO_HISTORY
+        })
+
     }
 
 }

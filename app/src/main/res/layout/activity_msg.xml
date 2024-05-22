@@ -108,9 +108,11 @@
         android:layout_below="@+id/onlinetext"
         android:layout_marginLeft="10dp"
         android:padding="10dp"
+
         android:layout_marginTop="10dp"
         android:layout_alignParentLeft="true"
         android:id="@+id/online_status"
+        tools:listitem="@layout/members"
         android:orientation="horizontal"
         />
 
@@ -125,6 +127,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentLeft="true"
         android:id="@+id/recchatting"
+        tools:listitem="@layout/members"
         android:layout_above="@+id/msgnave"
         android:orientation="horizontal"
         />

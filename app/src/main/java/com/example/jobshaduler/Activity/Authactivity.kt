@@ -30,8 +30,10 @@ import java.time.format.DateTimeFormatter
 class Authactivity : AppCompatActivity() {
     var passwordtogle: Boolean = false
     lateinit var auth: FirebaseAuth
+
     lateinit var ani: AnimationKC
     private lateinit var b: ActivityAuthactivityBinding
+
     lateinit var db: FirebaseFirestore
     lateinit var getdocref: DocumentReference
     override fun onCreate(savedInstanceState: Bundle?) {
