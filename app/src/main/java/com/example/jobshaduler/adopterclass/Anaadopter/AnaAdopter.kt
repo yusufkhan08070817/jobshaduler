@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.todays.tData
 import com.example.jobshaduler.adopterclass.todays.upcoming.Tadopter
+import com.example.jobshaduler.classes.dataclass.currenttaskwithstatus
 
-class AnaAdopter(val data: ArrayList<tData>) : RecyclerView.Adapter<AnaAdopter.viewholder>() {
+class AnaAdopter(val data: ArrayList<currenttaskwithstatus>) : RecyclerView.Adapter<AnaAdopter.viewholder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewholder {
@@ -30,8 +31,8 @@ class AnaAdopter(val data: ArrayList<tData>) : RecyclerView.Adapter<AnaAdopter.v
         val colorResId = if (position % 2 == 0) R.color.card2 else R.color.card1
         val color = ContextCompat.getColor(holder.itemView.context, colorResId)
         holder.Card.setCardBackgroundColor(color)
-        holder.prograssbar.progress=current.prograss
-        holder.percentage.text=current.prograss.toString()
+        holder.prograssbar.progress=current.percentage.toInt()
+        holder.percentage.text=current.percentage.toString()
         holder.title.text=current.title
 
     }

@@ -1,8 +1,10 @@
 package com.example.jobshaduler.Activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jobshaduler.adopterclass.taskupdate.TaskupdateAdopter
@@ -53,7 +55,8 @@ class Taskclick : AppCompatActivity(), TaskupdateAdopter.checked {
         taskupdate.adapter = adopter
 
         // Fetching current task data from Firebase
-        Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}").get().addOnCompleteListener { it ->
+        Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}")
+            .get().addOnCompleteListener { it ->
             if (it.isSuccessful) {
                 datamap = it.result.value as Map<String, Any>
 
@@ -61,8 +64,10 @@ class Taskclick : AppCompatActivity(), TaskupdateAdopter.checked {
                     date = datamap["date"] as? String ?: "",
                     description = datamap["description"] as? String ?: "",
                     resourceLink = datamap["resourceLink"] as? String ?: "",
-                    teamChoose = (datamap["teamChoose"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                    subtask = (datamap["subtask"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    teamChoose = (datamap["teamChoose"] as? List<*>)?.filterIsInstance<String>()
+                        ?: emptyList(),
+                    subtask = (datamap["subtask"] as? List<*>)?.filterIsInstance<String>()
+                        ?: emptyList(),
                     title = datamap["title"] as? String ?: "",
                     percentage = datamap["percentage"] as? Float ?: 0f
                 )
@@ -84,15 +89,37 @@ class Taskclick : AppCompatActivity(), TaskupdateAdopter.checked {
             )
             Log.e("tag", "$updatedTask")
 
-            Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}")
-                .setValue(updatedTask).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Toast.makeText(this, "Task updated successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "Failed to update task", Toast.LENGTH_SHORT).show()
-                        Log.e("update", "Failed to update data: ${it.exception?.message}")
+            if (updatedTask.percentage < 99)
+            {
+                Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}")
+                    .setValue(updatedTask).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Toast.makeText(this, "Task updated successfully", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            Toast.makeText(this, "Failed to update task", Toast.LENGTH_SHORT).show()
+                            Log.e("update", "Failed to update data: ${it.exception?.message}")
+                        }
                     }
-                }
+            }else
+            {
+                Firebase.database.reference.child("employ/${emailandpass.empid}/completed/${yourDataClass.title}")
+                    .setValue(updatedTask).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Toast.makeText(this, "Task updated successfully", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            Toast.makeText(this, "Failed to update task", Toast.LENGTH_SHORT).show()
+                            Log.e("update", "Failed to update data: ${it.exception?.message}")
+                        }
+                    }
+
+                removeData("employ/${emailandpass.empid}/currenttask/${yourDataClass.title}")
+                val myToast = Toast.makeText(applicationContext,"Your task is completed",Toast.LENGTH_SHORT)
+                myToast.setGravity(Gravity.LEFT,200,200)
+                myToast.show()
+                startActivity(Intent(this,MainActivity::class.java))
+            }
         }
     }
 

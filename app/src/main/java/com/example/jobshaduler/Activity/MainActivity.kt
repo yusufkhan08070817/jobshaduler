@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -59,6 +60,12 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
         b.headertitle.text = emailandpass.usename
         b.headersubtitle.text = emailandpass.today
         val ani = AnimationKC(this)
+
+        if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA),234)
+        }
+
         nonavigatation()
         nave()
         ani.AnimationStater(b.headerimage, ani.long_toup_with_fadeout)
@@ -96,9 +103,7 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
 
         fbget()
         nexttask()
-        TodayTaskList.tdata.forEach {
-            Toast.makeText(this, "${it.title} ${it.prograss}", Toast.LENGTH_SHORT).show()
-        }
+
         FirebaseDatabase.getInstance().getReference("employ/${emailandpass.empid}/notificatiton")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -138,7 +143,7 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
             Firebase.database.reference.child("employ/${emailandpass.empid}/notificatiton")
                 .setValue(false).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(this, "Notifi", Toast.LENGTH_SHORT).show()
+
                         val tintColor = ContextCompat.getColor(this@MainActivity, R.color.black)
 
                         // Apply tint to the image
@@ -173,7 +178,7 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
                     startActivity(Intent(
                         this, task::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {  })
                 }
 
                 3 -> {
@@ -210,7 +215,7 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     startActivity(Intent(
                         this, MSG::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {  })
 
                 }
 
@@ -226,15 +231,16 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
                     startActivity(Intent(
                         this, Ana::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {  })
                 }
             }
         }
         b.headerdp.setOnClickListener {
             startActivity(Intent(this, Profile::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+
             })
         }
+        Toast.makeText(this, "${emailandpass.empid!!}", Toast.LENGTH_SHORT).show()
         videoCallServices(emailandpass.empid!!)
     }
 
@@ -274,27 +280,29 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
     fun fbget() {
         TodayTaskList.tdata = ArrayList<tData>()
         Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask").get()
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val dataMap =
-                        it.result.value as? Map<String, Map<String, Any>> // Assuming the data is a Map
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val dataMap = task.result.value as? Map<String, Any>
 
                     dataMap?.let { map ->
                         currenttask = map.map { entry ->
                             val key = entry.key
-                            val value = entry.value
+                            val value = entry.value as Map<String, Any>
+
+                            Log.d("FirebaseData", "Task: $key, Value: $value")
+
                             currenttaskwithstatus(
                                 date = value["date"] as? String ?: "",
-                                description = value["descripatation"] as? String ?: "",
-                                resourceLink = value["resorcelink"] as? String ?: "",
+                                description = value["description"] as? String ?: "",
+                                resourceLink = value["resourceLink"] as? String ?: "",
                                 teamChoose = value["teamchoose"] as? List<String> ?: emptyList(),
                                 subtask = value["subtask"] as? List<String> ?: emptyList(),
                                 title = value["title"] as? String ?: "",
-                                percentage = value["percentage"] as? Float ?: 0f
+                                percentage = (value["percentage"] as? Number)?.toFloat() ?: 0f
                             )
                         }
 
-                        // Use dataList as needed
+                        val tempdata = ArrayList<currenttaskwithstatus>()
                         TodayTaskList.currenttask.clear()
                         for (data in currenttask) {
                             TodayTaskList.currenttask.add(data)
@@ -306,33 +314,38 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
                             println("cTeam Choose: ${data.teamChoose}")
                             println("cSubtask: ${data.subtask}")
                             println("cTitle: ${data.title}")
-                            println("cpercent:${data.percentage}")
+                            println("cPercent: ${data.percentage}")
+if (data.percentage<99)
+{
+
+}
+                            tempdata.add(data)
+
                             if (data.percentage > 50) {
                                 b.taskcardprogressbarpercentagr.text = data.percentage.toString()
                                 b.taskcardprogressBar.progress = data.percentage.toInt()
-
-                                b.cardrelatvetext.text = "your ${data.title} task almost done"
+                                b.cardrelatvetext.text = "Your ${data.title} task is almost done."
                             } else {
                                 b.taskcardprogressbarpercentagr.text = data.percentage.toString()
                                 b.taskcardprogressBar.progress = data.percentage.toInt()
-
-                                b.cardrelatvetext.text =
-                                    "Your ${data.title} task has not been started yet."
+                                b.cardrelatvetext.text = "Your ${data.title} task has not been started yet."
                             }
                             TodayTaskList.tdata.add(tData(R.drawable.dp, data.title, data.percentage.toInt()))
                         }
 
-                        b.todayrecycle.layoutManager =
-                            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                        b.todayrecycle.adapter = Tadopter( TodayTaskList.tdata, this,this)
-
+                        Log.e("TempData", "$tempdata")
+                        b.todayrecycle.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+                        b.todayrecycle.adapter = Tadopter(tempdata, this, this)
                     }
-
+                } else {
+                    Log.e("FirebaseError", "Error getting data", task.exception)
                 }
             }
+
     }
 
     fun nexttask() {
+        Upcomingtask.upcomingTask.clear()
         Firebase.database.reference.child("employ/${emailandpass.empid}/assignedtask").get()
             .addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -365,7 +378,7 @@ class MainActivity : AppCompatActivity(),Tadopter.todaytaskclick {
                             println("Team Choose: ${data.teamChoose}")
                             println("Subtask: ${data.subtask}")
                             println("Title: ${data.title}")
-                            Upcomingtask.upcomingTask.clear()
+
                             Upcomingtask.upcomingTask.add(udata(data.title, data.date))
                         }
                         b.upcomingrecycler.layoutManager = LinearLayoutManager(this)

@@ -4,9 +4,11 @@ import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -32,14 +34,14 @@ class task : AppCompatActivity() {
     lateinit var currenttask: List<currenttaskwithstatus>
     lateinit var complete: List<currenttaskwithstatus>
     lateinit var totle: List<currenttaskwithstatus>
-    val taskdata = ArrayList<TaskData>()
+    val taskdata = ArrayList<currenttaskwithstatus>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityTaskBinding.inflate(layoutInflater)
         setContentView(b.root)
         nonavigatation()
         clickchange()
-
+        currenttask = emptyList()
         val ani = AnimationKC(this)
         ani.AnimationStater(b.taskheaderrelativelayout, ani.long_toleft)
         ani.AnimationStater(b.all, ani.long_toleft)
@@ -71,7 +73,7 @@ class task : AppCompatActivity() {
                         Intent(
                             this,
                             MainActivity::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
                 }
 
                 2 -> {
@@ -103,7 +105,7 @@ class task : AppCompatActivity() {
                         Intent(
                             this,
                             if (emailandpass.jobtype == "admin") Add::class.java else taskupdate::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
                 }
 
                 4 -> {
@@ -121,7 +123,7 @@ class task : AppCompatActivity() {
                         Intent(
                             this,
                             MSG::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
 
                 }
 
@@ -140,10 +142,13 @@ class task : AppCompatActivity() {
                         Intent(
                             this,
                             Ana::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
                 }
             }
         }
+        b.taskrecycler.layoutManager = LinearLayoutManager(this)
+          totle()
+
     }
 
     fun setinitent(cls: Class<*>): Intent {
@@ -157,7 +162,7 @@ class task : AppCompatActivity() {
             b.all.setCardBackgroundColor(getColor(R.color.card2))
             b.ongoing.setCardBackgroundColor(getColor(R.color.white))
             b.complete.setCardBackgroundColor(getColor(R.color.white))
-totle()
+            totle()
         }
         b.ongoing.setOnClickListener {
             b.all.setCardBackgroundColor(getColor(R.color.white))
@@ -201,6 +206,8 @@ totle()
     }
 
     fun fbget() {
+
+        taskdata.clear()
         Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask")
             .get().addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -235,29 +242,27 @@ totle()
                             println("cpercent:${data.percentage}")
 
                             taskdata.add(
-                                TaskData(
-                                    "project ${data.title}",
-                                    if (data.percentage < 50) "ongoing" else "running",
-                                    data.percentage.toInt(),
-                                    "09 am ",
-                                    data.subtask.size
-                                )
+                                data
                             )
                         }
-                        b.taskrecycler.layoutManager = LinearLayoutManager(this)
-                        b.taskrecycler.adapter = taskadopter(taskdata, this)
+
 
                     }
-
+                    b.taskrecycler.layoutManager = LinearLayoutManager(this)
+                    b.taskrecycler.adapter = taskadopter(taskdata, this)
                 }
             }
     }
 
     fun complete() {
-        Firebase.database.reference.child("employ/${emailandpass.empid}/complete")
+        taskdata.clear()
+
+        Firebase.database.reference.child("employ/${emailandpass.empid}/completed")
             .get().addOnCompleteListener {
+
                 if (it.result != null) {
                     if (it.isSuccessful) {
+
                         val dataMap =
                             it.result.value as? Map<String, Map<String, Any>> // Assuming the data is a Map
 
@@ -267,19 +272,19 @@ totle()
                                 val value = entry.value
                                 currenttaskwithstatus(
                                     date = value["date"] as? String ?: "",
-                                    description = value["descripatation"] as? String ?: "",
-                                    resourceLink = value["resorcelink"] as? String ?: "",
+                                    description = value["description"] as? String ?: "",
+                                    resourceLink = value["resourceLink"] as? String ?: "",
                                     teamChoose = value["teamchoose"] as? List<String>
                                         ?: emptyList(),
                                     subtask = value["subtask"] as? List<String> ?: emptyList(),
                                     title = value["title"] as? String ?: "",
-                                    percentage = value["percentage"] as? Float ?: 0f
+                                    percentage = (value["percentage"] as? Number)?.toFloat() ?: 0f
                                 )
                             }
 
                             // Use dataList as needed
 
-                            for (data in currenttask) {
+                            for (data in complete) {
                                 // Access individual properties of the YourDataClass instance
                                 println("cDate: ${data.date}")
                                 println("cDescription: ${data.description}")
@@ -288,28 +293,85 @@ totle()
                                 println("cSubtask: ${data.subtask}")
                                 println("cTitle: ${data.title}")
                                 println("cpercent:${data.percentage}")
-
+                                Log.e("tasksample", "${data}")
                                 taskdata.add(
-                                    TaskData(
-                                        "project ${data.title}",
-                                        if (data.percentage < 50) "ongoing" else "running",
-                                        data.percentage.toInt(),
-                                        "09 am ",
-                                        data.subtask.size
-                                    )
+                                    data
                                 )
+
                             }
                             b.taskrecycler.layoutManager = LinearLayoutManager(this)
                             b.taskrecycler.adapter = taskadopter(taskdata, this)
 
                         }
 
+                    } else {
+                        it.addOnFailureListener {
+                            Toast.makeText(this, "${it.message}", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
     }
 
     fun totle() {
+        taskdata.clear()
+        Firebase.database.reference.child("employ/${emailandpass.empid}/completed")
+            .get().addOnCompleteListener {
+
+                if (it.result != null) {
+                    if (it.isSuccessful) {
+
+                        val dataMap =
+                            it.result.value as? Map<String, Map<String, Any>> // Assuming the data is a Map
+
+                        dataMap?.let { map ->
+                            complete = map.map { entry ->
+                                val key = entry.key
+                                val value = entry.value
+                                currenttaskwithstatus(
+                                    date = value["date"] as? String ?: "",
+                                    description = value["description"] as? String ?: "",
+                                    resourceLink = value["resourceLink"] as? String ?: "",
+                                    teamChoose = value["teamchoose"] as? List<String>
+                                        ?: emptyList(),
+                                    subtask = value["subtask"] as? List<String> ?: emptyList(),
+                                    title = value["title"] as? String ?: "",
+                                    percentage = (value["percentage"] as? Number)?.toFloat() ?: 0f
+                                )
+                            }
+
+                            // Use dataList as needed
+
+                            for (data in complete) {
+                                // Access individual properties of the YourDataClass instance
+                                println("cDate: ${data.date}")
+                                println("cDescription: ${data.description}")
+                                println("cResource Link: ${data.resourceLink}")
+                                println("cTeam Choose: ${data.teamChoose}")
+                                println("cSubtask: ${data.subtask}")
+                                println("cTitle: ${data.title}")
+                                println("cpercent:${data.percentage}")
+                                Log.e("tasksample", "${data}")
+                                taskdata.add(
+                                    data
+                                )
+
+                            }
+                            b.taskrecycler.layoutManager = LinearLayoutManager(this)
+                            b.taskrecycler.adapter = taskadopter(taskdata, this)
+
+                        }
+
+                    } else {
+                        it.addOnFailureListener {
+                            Toast.makeText(this, "${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "empity", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         Firebase.database.reference.child("employ/${emailandpass.empid}/currenttask")
             .get().addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -322,12 +384,12 @@ totle()
                             val value = entry.value
                             currenttaskwithstatus(
                                 date = value["date"] as? String ?: "",
-                                description = value["descripatation"] as? String ?: "",
-                                resourceLink = value["resorcelink"] as? String ?: "",
+                                description = value["description"] as? String ?: "",
+                                resourceLink = value["resourceLink"] as? String ?: "",
                                 teamChoose = value["teamchoose"] as? List<String> ?: emptyList(),
                                 subtask = value["subtask"] as? List<String> ?: emptyList(),
                                 title = value["title"] as? String ?: "",
-                                percentage = value["percentage"] as? Float ?: 0f
+                                percentage = (value["percentage"] as? Number)?.toFloat() ?: 0f
                             )
                         }
 
@@ -344,17 +406,10 @@ totle()
                             println("cpercent:${data.percentage}")
 
                             taskdata.add(
-                                TaskData(
-                                    "project ${data.title}",
-                                    if (data.percentage < 50) "ongoing" else "running",
-                                    data.percentage.toInt(),
-                                    "09 am ",
-                                    data.subtask.size
-                                )
+                                data
                             )
                         }
-                        b.taskrecycler.layoutManager = LinearLayoutManager(this)
-                        b.taskrecycler.adapter = taskadopter(taskdata, this)
+
 
                     }
 
@@ -372,12 +427,12 @@ totle()
                             val value = entry.value
                             currenttaskwithstatus(
                                 date = value["date"] as? String ?: "",
-                                description = value["descripatation"] as? String ?: "",
-                                resourceLink = value["resorcelink"] as? String ?: "",
+                                description = value["description"] as? String ?: "",
+                                resourceLink = value["resourceLink"] as? String ?: "",
                                 teamChoose = value["teamchoose"] as? List<String> ?: emptyList(),
                                 subtask = value["subtask"] as? List<String> ?: emptyList(),
                                 title = value["title"] as? String ?: "",
-                                percentage = value["percentage"] as? Float ?: 0f
+                                percentage = (value["percentage"] as? Number)?.toFloat() ?: 0f
                             )
                         }
 
@@ -394,16 +449,10 @@ totle()
                             println("cpercent:${data.percentage}")
 
                             taskdata.add(
-                                TaskData(
-                                    "project ${data.title}",
-                                    if (data.percentage < 50) "ongoing" else "running",
-                                    data.percentage.toInt(),
-                                    "09 am ",
-                                    data.subtask.size
-                                )
+                                data
                             )
                         }
-                        b.taskrecycler.layoutManager = LinearLayoutManager(this)
+
                         b.taskrecycler.adapter = taskadopter(taskdata, this)
 
                     }

@@ -34,26 +34,26 @@ import com.zegocloud.uikit.prebuilt.call.config.ZegoNotificationConfig
 import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
 import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 
-class MSG : AppCompatActivity(),chattingadopter.chattingclick {
+class MSG : AppCompatActivity(), chattingadopter.chattingclick {
     lateinit var b: ActivityMsgBinding
-    lateinit var emparray:ArrayList<String>
+    lateinit var emparray: ArrayList<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityMsgBinding.inflate(layoutInflater)
         setContentView(b.root)
         nonavigatation()
         Nave.add(b.msgnave)
-        emparray=ArrayList<String>()
+        emparray = ArrayList<String>()
 
         b.onlineStatus.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         b.onlineStatus.adapter = msgadopter()
         b.recchatting.layoutManager = LinearLayoutManager(this)
 
-       // b.msgheaderdp.setImageURI(emailandpass.image)
         Glide.with(this).load(emailandpass.image).into(b.msgheaderdp)
         b.msgheaderdp.setOnClickListener {
-            startActivity(Intent(this,Profile::class.java))
+            startActivity(Intent(this, Profile::class.java))
         }
         val ani = AnimationKC(this)
         ani.AnimationStater(b.msgheaderrelativelayout, ani.long_toleft)
@@ -76,10 +76,8 @@ class MSG : AppCompatActivity(),chattingadopter.chattingclick {
                         Intent(
                             this,
                             MainActivity::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
-
+                        ).apply { })
                 }
-
                 2 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.clipboard)
                     drawable?.setColorFilter(
@@ -95,9 +93,8 @@ class MSG : AppCompatActivity(),chattingadopter.chattingclick {
                         Intent(
                             this,
                             task::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
                 }
-
                 3 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.add)
                     drawable?.setColorFilter(
@@ -109,23 +106,20 @@ class MSG : AppCompatActivity(),chattingadopter.chattingclick {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
-                    if (emailandpass.jobtype=="employ")
-                    {
+                    if (emailandpass.jobtype == "employ") {
                         startActivity(
                             Intent(
                                 this,
                                 taskupdate::class.java
-                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
-                    }else
-                    {
+                            ).apply { })
+                    } else {
                         startActivity(
                             Intent(
                                 this,
                                 Add::class.java
-                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                            ).apply { })
                     }
                 }
-
                 4 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.chat)
                     drawable?.setColorFilter(
@@ -137,9 +131,7 @@ class MSG : AppCompatActivity(),chattingadopter.chattingclick {
                     naveobj.naveobj.imageButton2.setImageResource(R.drawable.clipboard)
                     naveobj.naveobj.imageButton3.setImageResource(R.drawable.add)
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
-
                 }
-
                 5 -> {
                     val drawable = ContextCompat.getDrawable(this, R.drawable.chart)
                     drawable?.setColorFilter(
@@ -155,51 +147,55 @@ class MSG : AppCompatActivity(),chattingadopter.chattingclick {
                         Intent(
                             this,
                             Ana::class.java
-                        ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                        ).apply { })
                 }
             }
         }
 
         getemploylist()
-        b.recchatting.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        b.recchatting.adapter = chattingadopter(emparray,this)
-
-
+        b.recchatting.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        b.recchatting.adapter = chattingadopter(emparray, this)
     }
-fun getemploylist()
-{
-    val docRef = FirebaseFirestore.getInstance().collection(emailandpass.compani!!).document("employlist")
-    docRef.get().addOnSuccessListener { documentSnapshot ->
-        if (documentSnapshot.exists()) {
-            val arrayList = documentSnapshot.get("employ_list")
-            if (arrayList != null) {
-                if (arrayList is List<*>) {
-                   emparray = arrayList as ArrayList<String>
-                    // Loop through the string array elements
-                    for (item in emparray) {
-                        Log.e("elements", item)
-                        Toast.makeText(this, "$item", Toast.LENGTH_SHORT).show()
+
+    fun getemploylist() {
+
+
+        val docRef = FirebaseFirestore.getInstance()
+            .collection(emailandpass.compani!!)
+            .document("employlist")
+
+        docRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val arrayList = documentSnapshot.get("employ_list")
+                if (arrayList != null) {
+                    if (arrayList is List<*>) {
+                        emparray = arrayList as ArrayList<String>
+                        emparray.remove(emailandpass.empid)
+                        // Loop through the string array elements
+                        for (item in emparray) {
+                            Log.e("elements", item)
+                            Toast.makeText(this, "$item", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        // Handle unexpected data type
                     }
+
+                    b.recchatting.adapter = chattingadopter(emparray, this)
+                    println("ArrayList from Firestore:")
                 } else {
-                    // Handle unexpected data type
+                    // ArrayList is null or not of expected type
+                    println("Failed to retrieve ArrayList from Firestore")
                 }
-
-                b.recchatting.adapter = chattingadopter(emparray,this)
-                println("ArrayList from Firestore:")
-
             } else {
-                // ArrayList is null or not of expected type
-                println("Failed to retrieve ArrayList from Firestore")
+                // Document doesn't exist
+                println("Document does not exist")
             }
-        } else {
-            // Document doesn't exist
-            println("Document does not exist")
+        }.addOnFailureListener { e ->
+            // Handle failures
+            println("Error fetching document: $e")
         }
-    }.addOnFailureListener { e ->
-        // Handle failures
-        println("Error fetching document: $e")
     }
-}
+
     override fun onResume() {
         super.onResume()
         Cnave(this)
@@ -208,37 +204,32 @@ fun getemploylist()
     }
 
     fun nonavigatation() {
-        getWindow().setFlags(
+        window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
-        );
+        )
         val decorView = window.decorView
         val uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = uiOptions
     }
-
     override fun chaattingclickposition(position: Int) {
-
-
-
-
-        val intent = Intent(this, Chattinglayout::class.java)
-refs.chattingref=emparray[position]
+        val intent = Intent(this, Chattinglayout::class.java).also {
+            Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+        }
+        refs.chattingref = emparray[position]
         intent.putExtra("userID", emparray[position])
         videoCallServices(emailandpass.empid!!)
         startActivity(intent)
-
-
     }
 
     private fun videoCallServices(userID: String) {
-        val appID: Long = 1232378385 // your App ID of Zoge Cloud Project
-        val appSign = "ca2395df49aa00f574fa36961dd9c09b73585e0014cd6a50700a5d8570283a9d" // your App Sign of Zoge Cloud Project
+        val appID: Long = 1232378385 // your App ID of Zego Cloud Project
+        val appSign = "ca2395df49aa00f574fa36961dd9c09b73585e0014cd6a50700a5d8570283a9d" // your App Sign of Zego Cloud Project
         val application = application // Android's application context
         val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
-        //    callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
+        // callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
         val notificationConfig = ZegoNotificationConfig()
         notificationConfig.sound = "zego_uikit_sound_call"
         notificationConfig.channelID = "CallInvitation"

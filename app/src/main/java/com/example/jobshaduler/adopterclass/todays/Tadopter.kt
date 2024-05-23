@@ -14,8 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
 import com.example.jobshaduler.adopterclass.todays.tData
+import com.example.jobshaduler.classes.dataclass.currenttaskwithstatus
 
-class Tadopter(val data: ArrayList<tData>,val context: Context,val Todaytaskclick:todaytaskclick ) : RecyclerView.Adapter<Tadopter.viewholder>() {
+class Tadopter(val data: ArrayList<currenttaskwithstatus>,val context: Context,val Todaytaskclick:todaytaskclick ) : RecyclerView.Adapter<Tadopter.viewholder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewholder {
@@ -32,8 +33,10 @@ class Tadopter(val data: ArrayList<tData>,val context: Context,val Todaytaskclic
         val colorResId = if (position % 2 == 0) R.color.card2 else R.color.card1
         val color = ContextCompat.getColor(holder.itemView.context, colorResId)
         holder.Card.setCardBackgroundColor(color)
-        holder.prograssbar.progress=current.prograss
-        holder.percentage.text=current.prograss.toString()
+
+
+        holder.prograssbar.progress=current.percentage.toInt()
+        holder.percentage.text=current.percentage.toString()
         holder.title.text=current.title
 
        val ani= AnimationKC(context)

@@ -101,7 +101,7 @@ class Authactivity : AppCompatActivity() {
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         startActivity(Intent(this, Profile::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+
                         })
                         Toast.makeText(this, "db store", Toast.LENGTH_SHORT).show()
                     }
@@ -139,9 +139,9 @@ class Authactivity : AppCompatActivity() {
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         startActivity(Intent(this, Profile::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+
                         })
-                        Toast.makeText(this, "db store", Toast.LENGTH_SHORT).show()
+
                     }
 
                 }.addOnFailureListener {
@@ -174,6 +174,9 @@ class Authactivity : AppCompatActivity() {
                 } else {
                     Log.e("fbauth error", "${it.exception}")
                 }
+                it.addOnFailureListener {
+                    Toast.makeText(this, " ${it.cause} and ${it.message }", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         b.passwordtogale.setOnClickListener {
@@ -200,7 +203,7 @@ class Authactivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             if (pass.length < 6) {
-                Toast.makeText(this, "password galat h", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "wrong password ", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {

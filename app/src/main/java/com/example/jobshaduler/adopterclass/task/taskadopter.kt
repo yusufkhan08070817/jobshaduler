@@ -14,8 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.animation.LIB.AnimationKC
 import com.example.jobshaduler.R
+import com.example.jobshaduler.classes.dataclass.currenttaskwithstatus
 
-class taskadopter(val Data: ArrayList<TaskData>,val context:Context) : RecyclerView.Adapter<taskadopter.viewholde>() {
+class taskadopter(val Data: ArrayList<currenttaskwithstatus>,val context:Context) : RecyclerView.Adapter<taskadopter.viewholde>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewholde {
@@ -31,7 +32,7 @@ class taskadopter(val Data: ArrayList<TaskData>,val context:Context) : RecyclerV
     override fun onBindViewHolder(holder: viewholde, position: Int) {
         val currency = Data[position]
         val ani=AnimationKC(context)
-        val setcolor = when (currency.percentage) {
+        val setcolor = when (currency.percentage.toInt()) {
             in 0..50 -> {
                 R.color.orang
             }
@@ -44,7 +45,7 @@ class taskadopter(val Data: ArrayList<TaskData>,val context:Context) : RecyclerV
 
             else -> {R.color.card1back}
         }
-        val setprograss = when (currency.percentage) {
+        val setprograss = when (currency.percentage.toInt()) {
             in 0..50 -> {
                 ContextCompat.getDrawable(context,R.drawable.prograss1)
             }
@@ -59,7 +60,7 @@ class taskadopter(val Data: ArrayList<TaskData>,val context:Context) : RecyclerV
         }
 
 
-        val setbuttoncolor: Drawable? = when (currency.percentage) {
+        val setbuttoncolor: Drawable? = when (currency.percentage.toInt()) {
             in 0..50 -> {
                 ContextCompat.getDrawable(context, R.drawable.three_dots_svgrepo_com)?.apply {
                     setColorFilter(
@@ -95,12 +96,21 @@ class taskadopter(val Data: ArrayList<TaskData>,val context:Context) : RecyclerV
         }
         holder.teaskbutton.setImageDrawable(setbuttoncolor)
         holder.taskcardtitle.setTextColor(ContextCompat.getColor(context,setcolor))
-        holder.taskcardtitle.text=currency.taskstatus
+     if (currency.percentage<50)
+         holder.taskcardtitle.text="ongoing"
+        else
+         if (currency.percentage<80)
+             holder.taskcardtitle.text="all most complete"
+         else
+             if (currency.percentage<=99)
+                 holder.taskcardtitle.text="complete"
+        else
+                 holder.taskcardtitle.text="complete"
         holder.cardtitle.text=currency.title
         holder.cardtitle.setTextColor(setcolor)
         holder.timedhadule.text=currency.title
-        holder.person.text=currency.person.toString()
-        holder.cardprogressBar2.progress=currency.percentage
+        holder.person.text=currency.teamChoose.size.toString()
+        holder.cardprogressBar2.progress=currency.percentage.toInt()
         holder.cardprogressBar2.progressDrawable=setprograss
         holder.percentageofprograss.text=currency.percentage.toString()
         ani.AnimationStater(holder.taskcardlayout,ani.short_toleft)

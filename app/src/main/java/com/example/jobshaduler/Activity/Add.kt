@@ -116,7 +116,7 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
                     startActivity(Intent(
                         this, MainActivity::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {   })
                 }
 
                 2 -> {
@@ -131,7 +131,7 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
                     startActivity(Intent(
                         this, task::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {   })
                 }
 
                 3 -> {
@@ -160,7 +160,7 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton5.setImageResource(R.drawable.chart)
                     startActivity(Intent(
                         this, MSG::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {   })
 
                 }
 
@@ -176,7 +176,7 @@ class Add : AppCompatActivity() {
                     naveobj.naveobj.imageButton4.setImageResource(R.drawable.chat)
                     startActivity(Intent(
                         this, Ana::class.java
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY) })
+                    ).apply {   })
                 }
             }
         }
@@ -186,12 +186,12 @@ class Add : AppCompatActivity() {
             startActivity(Intent(this, Profile::class.java))
         }
         b.clander.setOnClickListener {
-            Toast.makeText(this, "click", Toast.LENGTH_SHORT).show()
+
             b.cardlay.visibility = View.VISIBLE
         }
         b.closeclender.setOnClickListener {
             b.cardlay.visibility = View.GONE
-            Toast.makeText(this, "hide click", Toast.LENGTH_SHORT).show()
+
         }
         var date = ""
         b.clenderview.setOnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
@@ -233,7 +233,7 @@ class Add : AppCompatActivity() {
                 rtdb.reference.child("employ/${it}/notificatiton").setValue(true)
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
-                            Toast.makeText(this, "Notifi", Toast.LENGTH_SHORT).show()
+
                         }
                     }
             }

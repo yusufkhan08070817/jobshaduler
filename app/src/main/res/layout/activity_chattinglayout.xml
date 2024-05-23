@@ -9,38 +9,41 @@
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:text="name"
+        android:id="@+id/secondperson"
         android:layout_margin="10dp"
         android:textSize="20dp"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:padding="10dp"
         />
+
     <LinearLayout
+        android:id="@+id/videoaudiocall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="10dp"
-        android:id="@+id/videoaudiocall"
-        >
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="right">
 
         <ImageButton
             android:id="@+id/videocall"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
-            android:src="@drawable/videocall"
             android:scaleType="centerCrop"
-            />
+            android:src="@drawable/videocall" />
+
         <ImageButton
+            android:id="@+id/audiocall"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@color/white"
-            android:src="@drawable/audiocall"
             android:scaleType="centerCrop"
-            android:id="@+id/audiocall"
-            />
+            android:src="@drawable/audiocall" />
     </LinearLayout>
     <!-- RecyclerView to display chat messages -->
     <androidx.recyclerview.widget.RecyclerView

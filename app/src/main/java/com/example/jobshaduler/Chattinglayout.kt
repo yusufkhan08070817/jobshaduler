@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jobshaduler.Activity.MainActivity2
@@ -35,13 +37,13 @@ class Chattinglayout : AppCompatActivity() {
         setContentView(b.root)
         val recycler = b.recyclerView
         msg = ArrayList<Message>()
-
+b.secondperson.text=refs.chattingref
         database = FirebaseDatabase.getInstance().reference
         recycler.layoutManager = LinearLayoutManager(this);
         b.sendButton.setOnClickListener {
             msg.add(Message(b.messageInput.text.toString(), "",emailandpass.empid!!, refs.chattingref))
             firebase(msg)
-
+            b.messageInput.text=Editable.Factory.getInstance().newEditable("")
         }
 
         setupDatabaseListener()
